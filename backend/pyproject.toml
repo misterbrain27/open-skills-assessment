@@ -1,0 +1,37 @@
+[project]
+name = "open-skills-assessment-backend"
+description = "Backend de l'application de test de compétences"
+version = "0.1.0"
+requires-python = ">=3.12"
+dependencies = [
+    "django>=5.2,<5.3",
+    "django-environ>=0.14.0",
+    "djangorestframework>=3.18.1",
+    "djangorestframework-simplejwt>=5.5.1",
+    "drf-spectacular>=0.30.0",
+    "psycopg[binary]>=3.3.6",
+]
+
+[dependency-groups]
+dev = [
+    "factory-boy>=3.3.3",
+    "pytest>=9.1.1",
+    "pytest-cov>=7.1.0",
+    "pytest-django>=4.14.0",
+    "ruff>=0.16.9",
+]
+
+[tool.ruff]
+line-length = 100
+target-version = "py312"
+# Les migrations sont générées par Django : on ne les lint pas.
+extend-exclude = ["migrations"]
+
+[tool.ruff.lint]
+select = ["E", "F", "I", "UP", "B", "DJ", "S"]
+
+[tool.ruff.lint.per-file-ignores]
+# pytest repose sur `assert`, que S101 interdit dans le code applicatif.
+"**/tests/**" = ["S101"]
+"**/test_*.py" = ["S101"]
+"**/conftest.py" = ["S101"]
