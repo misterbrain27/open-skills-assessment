@@ -31,6 +31,7 @@ INSTALLED_APPS = [
     "django.contrib.staticfiles",
     "rest_framework",
     "drf_spectacular",
+    "core",
 ]
 
 REST_FRAMEWORK = {
@@ -91,3 +92,28 @@ USE_TZ = True
 STATIC_URL = "static/"
 
 DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
+
+# Logs JSON sur la sortie standard : un outil de collecte peut filtrer sur les champs
+# (levelname, name…) sans expression régulière, et Docker récupère stdout tel quel.
+LOGGING = {
+    "version": 1,
+    # False : garder les loggers déjà créés par Django (django.request, django.server…),
+    # sinon leurs erreurs disparaissent sans bruit.
+    "disable_existing_loggers": False,
+    "formatters": {
+        "json": {
+            "()": "pythonjsonlogger.json.JsonFormatter",
+            "fmt": "%(asctime)s %(levelname)s %(name)s %(message)s",
+        },
+    },
+    "handlers": {
+        "console": {
+            "class": "logging.StreamHandler",
+            "formatter": "json",
+        },
+    },
+    "root": {
+        "handlers": ["console"],
+        "level": "INFO",
+    },
+}

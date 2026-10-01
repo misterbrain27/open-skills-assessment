@@ -5,7 +5,7 @@ import os
 # base.py exige ces variables : on fournit des valeurs de test avant de l'importer.
 # setdefault laisse la CI les surcharger (DATABASE_URL vers PostgreSQL à partir de l'étape 4).
 os.environ.setdefault("DJANGO_SECRET_KEY", "cle-de-test-uniquement")
-os.environ.setdefault("DATABASE_URL", "sqlite://:memory:")
+os.environ.setdefault("DATABASE_URL", "postgres://osa:osa@localhost:5432/osa")
 
 from .base import *  # noqa: E402
 
