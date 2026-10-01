@@ -32,6 +32,7 @@ INSTALLED_APPS = [
     "rest_framework",
     "drf_spectacular",
     "core",
+    "accounts",
 ]
 
 REST_FRAMEWORK = {
@@ -92,6 +93,10 @@ USE_TZ = True
 STATIC_URL = "static/"
 
 DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
+
+# Déclaré avant la toute première migration : le changer ensuite casse l'historique des
+# migrations (auth et admin pointent vers cette table) et oblige à recréer la base.
+AUTH_USER_MODEL = "accounts.User"
 
 # Logs JSON sur la sortie standard : un outil de collecte peut filtrer sur les champs
 # (levelname, name…) sans expression régulière, et Docker récupère stdout tel quel.

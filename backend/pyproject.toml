@@ -33,9 +33,10 @@ select = ["E", "F", "I", "UP", "B", "DJ", "S"]
 
 [tool.ruff.lint.per-file-ignores]
 # pytest repose sur `assert`, que S101 interdit dans le code applicatif.
-"**/tests/**" = ["S101"]
-"**/test_*.py" = ["S101"]
-"**/conftest.py" = ["S101"]
+# S105/S106 : les mots de passe écrits dans les tests sont factices, pas des secrets.
+"**/tests/**" = ["S101", "S105", "S106"]
+"**/test_*.py" = ["S101", "S105", "S106"]
+"**/conftest.py" = ["S101", "S105", "S106"]
 # `from .base import *` est la convention Django pour hériter des settings communs.
 "config/settings/*.py" = ["F403", "F405"]
 
