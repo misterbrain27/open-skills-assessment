@@ -59,3 +59,8 @@ class User(AbstractUser, TimeStampedModel):
 
     def __str__(self) -> str:
         return self.email
+
+    @property
+    def is_org_admin(self) -> bool:
+        # Seul endroit où le rôle est comparé : le reste du code appelle cette propriété.
+        return self.role == self.Role.ADMIN
