@@ -15,11 +15,25 @@ Including another URLconf
     2. Add a URL to urlpatterns:  path('blog/', include('blog.urls'))
 """
 
+from django.conf import settings
 from django.contrib import admin
 from django.urls import include, path
+from drf_spectacular.views import SpectacularAPIView, SpectacularSwaggerView
 
 urlpatterns = [
     path("admin/", admin.site.urls),
     path("api/", include("core.urls")),
     path("api/", include("accounts.urls")),
 ]
+
+# Documentation de l'API en développement seulement : le front n'en a pas besoin, et en prod
+# un endpoint public doit avoir une raison d'exister.
+if settings.DEBUG:
+    urlpatterns += [
+        path("api/schema/", SpectacularAPIView.as_view(), name="schema"),
+        path("api/docs/", SpectacularSwaggerView.as_view(url_name="schema"), name="docs"),
+    ]
+
+admin.site.site_header = "Administration du projet"
+admin.site.site_title = "Portail de gestion"
+admin.site.index_title = "Bienvenue au test de compétences"

@@ -17,8 +17,8 @@ def detail_url(user: User) -> str:
 
 def client_for(user: User | None) -> APIClient:
     client = APIClient()
-    # force_authenticate : les tests ne dépendent pas de la méthode d'authentification
-    # (session aujourd'hui, JWT à l'étape 7).
+    # force_authenticate : ces tests portent sur les permissions et l'isolation, pas sur le
+    # JWT, testé à part dans test_auth.py.
     if user is not None:
         client.force_authenticate(user=user)
     return client
@@ -73,8 +73,8 @@ def test_me_returns_current_user_and_organization(recruiter_a, org_a):
 
 
 def test_me_requires_authentication():
-    # 403 et non 401 tant que la session est la première authentification (401 à l'étape 7).
-    assert client_for(None).get(ME_URL).status_code == 403
+    # 401 et non 403 : JWTAuthentication fournit l'en-tête WWW-Authenticate.
+    assert client_for(None).get(ME_URL).status_code == 401
 
 
 def test_me_refuses_superuser_without_organization(platform_superuser):

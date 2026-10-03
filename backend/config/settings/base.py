@@ -5,6 +5,7 @@ Les valeurs par défaut sont les plus sûres : une variable oubliée fait échou
 ou ferme l'accès, elle n'ouvre jamais rien.
 """
 
+from datetime import timedelta
 from pathlib import Path
 
 from environ import Env
@@ -33,10 +34,16 @@ INSTALLED_APPS = [
     "drf_spectacular",
     "core",
     "accounts",
+    "rest_framework_simplejwt.token_blacklist",
 ]
 
 REST_FRAMEWORK = {
     "DEFAULT_SCHEMA_CLASS": "drf_spectacular.openapi.AutoSchema",
+    # Seul le JWT est accepté (ADR 0003). Sans authentification par session, l'API n'a pas
+    # besoin de protection CSRF, et une requête sans token reçoit 401 avec WWW-Authenticate.
+    "DEFAULT_AUTHENTICATION_CLASSES": [
+        "rest_framework_simplejwt.authentication.JWTAuthentication",
+    ],
     # Un endpoint sans permission_classes explicite est fermé, pas ouvert.
     "DEFAULT_PERMISSION_CLASSES": [
         "rest_framework.permissions.IsAuthenticated",
@@ -44,6 +51,24 @@ REST_FRAMEWORK = {
     # Une liste sans limite peut renvoyer des milliers de lignes en une requête.
     "DEFAULT_PAGINATION_CLASS": "rest_framework.pagination.PageNumberPagination",
     "PAGE_SIZE": 20,
+    # Sans limite, un attaquant essaie des milliers de mots de passe par minute.
+    "DEFAULT_THROTTLE_RATES": {
+        "login": "5/min",
+    },
+    # Nombre de reverse proxys devant l'application. Avec None (défaut de DRF), l'IP du client
+    # est lue dans X-Forwarded-For, que le client écrit lui-même : changer sa valeur à chaque
+    # essai contourne le throttle. 0 = adresse réelle de la connexion.
+    "NUM_PROXIES": env.int("DJANGO_NUM_PROXIES", default=0),
+}
+
+SIMPLE_JWT = {
+    # Durées de l'ADR 0003. SIGNING_KEY reste par défaut, c'est-à-dire SECRET_KEY.
+    "ACCESS_TOKEN_LIFETIME": timedelta(minutes=15),
+    "REFRESH_TOKEN_LIFETIME": timedelta(days=1),
+    # Chaque refresh renvoie un nouveau refresh token et met l'ancien sur liste noire : un
+    # refresh token ne sert qu'une fois, et une copie volée réutilisée plus tard est refusée.
+    "ROTATE_REFRESH_TOKENS": True,
+    "BLACKLIST_AFTER_ROTATION": True,
 }
 
 MIDDLEWARE = [
@@ -124,4 +149,12 @@ LOGGING = {
         "handlers": ["console"],
         "level": "INFO",
     },
+}
+
+SPECTACULAR_SETTINGS = {
+    "TITLE": "Open Skills Assessment API",
+    "DESCRIPTION": "API REST de l'application Open Skills Assessment.",
+    "VERSION": "0.1.0",
+    # Le schéma ne décrit pas son propre endpoint.
+    "SERVE_INCLUDE_SCHEMA": False,
 }
