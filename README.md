@@ -57,6 +57,9 @@ Le repo est un monorepo :
   surtout CRUD. Voir l'[ADR 0001](docs/adr/0001-choix-django.md).
 - **Redis comme seul broker Celery** : un service de moins à opérer, avec des tâches
   idempotentes en contrepartie. Voir l'[ADR 0002](docs/adr/0002-redis-broker-celery.md).
+- **JWT hybride** : access token en mémoire, envoyé en en-tête `Authorization: Bearer` ;
+  refresh token dans un cookie `HttpOnly`, illisible par JavaScript et réservé aux endpoints
+  d'authentification. Voir l'[ADR 0003](docs/adr/0003-jwt-hybride-cookie-bearer.md).
 - **Sécurisé par défaut** : `DEBUG` désactivé et authentification requise sur tout endpoint,
   sauf exception explicite.
 - **Isolation multi-entreprises** : chaque requête d'API est filtrée par l'organisation de
@@ -84,4 +87,7 @@ Limites connues :
 
 - le projet n'est pas encore utilisable : seul le squelette du repo existe ;
 - pas de temps réel (suivi en direct d'une session), voir l'ADR 0001 ;
-- garanties de livraison des tâches plus faibles qu'avec RabbitMQ, voir l'ADR 0002.
+- garanties de livraison des tâches plus faibles qu'avec RabbitMQ, voir l'ADR 0002 ;
+- le front et l'API doivent être servis depuis le même site (API sous `/api` derrière un
+  reverse proxy), et le logout laisse l'access token valable jusqu'à 15 minutes, voir
+  l'ADR 0003.
